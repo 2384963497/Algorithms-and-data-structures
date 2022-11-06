@@ -8,5 +8,8 @@
 # print(type(j%q*10/q))
 # print("65">'659')
 
-print(not 0)
+# print(ord('B'))
 
+# print(chr(65+1))
+
+print(eval('2 // 2'))
