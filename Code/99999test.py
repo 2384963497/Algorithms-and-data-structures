@@ -12,4 +12,10 @@
 
 # print(chr(65+1))
 
-print(eval('2 // 2'))
+# print(eval('2 // 2'))
+
+a = [0, 1, 2, 3]
+print(a.pop(2))
+print(a.index(3))
+t = ' '.join('123')
+print(t)

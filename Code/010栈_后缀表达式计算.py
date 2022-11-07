@@ -29,15 +29,15 @@ B = 4
 C = 2 
 D = 2
 E = 1
-# ex = 'ABCE*+*C*'
-ex = "AB*CD*-"
+ex = 'ABCE*+*C*'
+# ex = "AB*CD*-"
 temp = Stack()
 
 for i in ex:
     if i in '+-*//%':
         x = temp.pop()
         y = temp.pop()
-        result = eval(x + i + y) #后面的操作数先出栈; 为了避免减法和除法顺序改变 写出 y i x
+        result = eval(y + i + x) #后面的操作数先出栈; 为了避免减法和除法顺序改变 写出 y i x
         temp.push(str(result))
     else:
         temp.push(i)
