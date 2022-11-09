@@ -10,7 +10,7 @@ class Node():
 
 class linkList():
     
-    def __init__(self, node=None):
+    def __init__(self, node = None):
         self._head = node
     
     def isEmpty(self):
@@ -57,9 +57,8 @@ class linkList():
 
     def remove(self, key):
         if self.search(key):
-            curr = self._head
-            pre = curr
-            while curr != None and curr.item != key:
+            pre = curr = self._head
+            while curr.next != None and curr.item != key:
                 pre = curr
                 curr = curr.next
             if curr == self._head:   # 移除首个元素
@@ -84,24 +83,21 @@ class linkList():
             tempNode = Node(item)
             tempNode.next = pre.next
             pre.next = tempNode
-        
+    
+    def reverse(self):
+        if self.length() <= 1:
+            return
+        pre = curr = self._head
+        temp = curr.next
+        curr.next = None
+        curr = temp
+        while temp != None:
+            temp = curr.next
+            curr.next = pre
+            pre = curr
+            curr = temp
+        self._head = pre
 
-            
 
 
-        
-myLink = linkList()
-myLink.add(100)
-myLink.append(700)
-myLink.append(600)
-myLink.append('hello')
-myLink.append('wrold')
-myLink.append("last")
-myLink.travel()
-myLink.remove(100)
-myLink.remove('hello')
-print("\n")
-myLink.travel()
-# myLink.insert(4, 'Flag')
-# print("\n")
-# myLink.travel()
+

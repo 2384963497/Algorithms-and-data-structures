@@ -2,7 +2,7 @@
 # import queue
 from collections import deque   #双端队列
 dequeQueue = deque(['Eric','John','Smith'])
-print(dequeQueue)
+print(dequeQueue.__len__())
 dequeQueue.append('Tom')    #在右侧插入新元素
 dequeQueue.appendleft('Terry')  #在左侧插入新元素
 print(dequeQueue)
