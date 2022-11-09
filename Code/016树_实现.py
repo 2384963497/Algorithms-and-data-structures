@@ -31,9 +31,6 @@ class Node():
         self.item = item
         self.lnode = None
         self.rnode = None
-
-
-
 class biTree():
     def __init__(self):
         self.root = None
@@ -129,8 +126,7 @@ class biTree():
                 tempQueue.append(temp.rnode)
         return count
     
-    def pop(self):
-        pass
+
 myTree = biTree()
 myTree.add(0)
 myTree.add(1)
