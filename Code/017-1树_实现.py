@@ -58,9 +58,50 @@ class bTree():
             if temp.rnode != None:
                 tempQueue.append(temp.rnode)
 
+    # 先序遍历
+    def preOrder(self):
+        if self.size == 0:
+            return
+        self.preOrderFunc(self.root)
+
+    def preOrderFunc(self, node):
+        if node == None:
+            return
+        print(node.data, end = ' ')
+        self.preOrderFunc(node.lnode)
+        self.preOrderFunc(node.rnode)
+
+    # 中序遍历
+    def inOrder(self):
+        if self.size == 0:
+            return
+        self.inOrderFunc(self.root)
+
+    def inOrderFunc(self, node):
+        if node == None:
+            return
+        self.inOrderFunc(node.lnode)
+        print(node.data, end = ' ')
+        self.inOrderFunc(node.rnode)
+    
+    # 后序遍历
+    def postOrder(self):
+        if self.size == 0:
+            return
+        self.postOrderFunc(self.root)
+
+    def postOrderFunc(self, node):
+        if node == None:
+            return
+        self.postOrderFunc(node.lnode)
+        self.postOrderFunc(node.rnode)
+        print(node.data, end = ' ')
+    
 
 if __name__ == '__main__':
     mybTree = bTree()
+
+    mybTree.add(0)
     mybTree.add(1)
     mybTree.add(2)
     mybTree.add(3)
@@ -72,7 +113,12 @@ if __name__ == '__main__':
     mybTree.add(9)
 
     print(mybTree.size)
-    mybTree.travel()
+    print("\n")
+    mybTree.preOrder()
+    print("\n")
+    mybTree.inOrder()
+    print("\n")
+    mybTree.postOrder()
 
 
 
