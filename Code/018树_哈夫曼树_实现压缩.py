@@ -170,10 +170,10 @@ if __name__ == '__main__':
         count = 0
         for i in temp:
             count += 1 
-    print(f"哈夫曼编码后二进制个数为:{count:,}")
+    print(f"哈夫曼编码后二进制个数为: {count:,}")
     with open("F:\\Ascii.txt", 'r') as rstream:
         temp = rstream.read()
         count = 0
         for i in temp:
             count += 1 
-    print(f"Ascii码二进制个数为:{count:,}")
+    print(f"Ascii码二进制个数为:\t  {count:,}")
