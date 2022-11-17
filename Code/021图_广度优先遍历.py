@@ -66,7 +66,7 @@ class Graph():
                     searched.add(i)
                     unSearched.remove(i)
                     tempQueue.push(self.getVertex(i))
-        
+       
 
 if __name__ == '__main__':
     myGraph = Graph()
