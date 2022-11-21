@@ -1,4 +1,4 @@
-# 翻转整棵树的所有左右子树
+# 求一颗搜索二叉树的深度
 
 # Node类
 class Node():
@@ -35,20 +35,22 @@ class BST():
 
     def inOrder(self, node):
         if node == None:
-            return
-        
-        self.inOrder(node.lTree)
+            return None
+        if node.lTree != None:
+            self.inOrder(node.lTree)
         print(node.item)
-        self.inOrder(node.rTree)
+        if node.rTree != None:
+            self.inOrder(node.rTree)
 
     def func(self, node):
+        global lDeep, rDeep
         if node == None:
-            return
-        node.lTree, node.rTree = node.rTree, node.lTree
-        self.func(node.lTree)
-        self.func(node.rTree)
-            
+            return 0
         
+        lDeep = self.func(node.lTree)
+        rDeep = self.func(node.rTree)
+        
+        return max(rDeep, lDeep)+1
 if __name__ == '__main__':
     myBST = BST()
     myBST.add(100)
@@ -63,8 +65,8 @@ if __name__ == '__main__':
     myBST.add(126)
     myBST.add(123)
 
-    myBST.inOrder(myBST.root)
-    myBST.func(myBST.root)
-    print("翻转后为:")
-    myBST.inOrder(myBST.root)
+    lDeep = 0
+    rDeep = 0
+    deep = myBST.func(myBST.root)
+    print(f"这颗二叉树的深度为{deep}")
     

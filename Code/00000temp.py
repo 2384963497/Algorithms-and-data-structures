@@ -1,25 +1,11 @@
 
-
-
-begin = int(input())
-end = int(input())
-
-count = 0
-while begin <= end:
-    t = begin 
-    while t:
-        if t % 10 == 2:
-            count += 1
-        t /= 2
-    begin += 1
-print(count)
-
-
-
-
-
-
-
+# t = "0123456"
+# # for i in (1,3):
+# #     tLen = 0
+# #     while tLen < i:
+# #         t[i-tLen-1:i]
+# #         tLen+=1
+# print(t[0:3])
 
 
 

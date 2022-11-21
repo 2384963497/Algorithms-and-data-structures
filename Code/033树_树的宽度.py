@@ -1,4 +1,6 @@
-# 求一颗搜索二叉树的深度
+# 求一颗搜索二叉树的宽度 
+# 树结构
+
 
 # Node类
 class Node():
@@ -42,10 +44,35 @@ class BST():
         if node.rTree != None:
             self.inOrder(node.rTree)
 
-    def func(self, key):
-        if self.root == None:
+    def func(self, node):
+        if node == None:
             return 0
         
+        tQueue = []
+        ln = 1
+        tQueue.append([node, ln])
+        i = 0
+        
+        while True:
+            if tQueue[i][0].lTree != None:
+                tQueue.append([tQueue[i][0].lTree, tQueue[i][1] + 1])
+            if tQueue[i][0].rTree != None:
+                tQueue.append([tQueue[i][0].rTree, tQueue[i][1] + 1])
+            i += 1
+            if i == len(tQueue):
+                break
+        
+        r = dict()
+        for i in tQueue:
+            if i[1] not in r:
+                r[i[1]] = 1
+            else:
+                r[i[1]] += 1
+        max = 0
+        for i in r:
+            if r[i] > max:
+                max = r[i]
+        return max
 if __name__ == '__main__':
     myBST = BST()
     myBST.add(100)
@@ -55,11 +82,13 @@ if __name__ == '__main__':
     myBST.add(80)
     myBST.add(120)
     myBST.add(115)
+    myBST.add(105)
     myBST.add(130)
     myBST.add(125)
     myBST.add(126)
     myBST.add(123)
 
-    deep = myBST.func()
-    print(f"这颗二叉树的深度为{deep}")
+
+    width = myBST.func(myBST.root)
+    print(f"这颗二叉树的深度为{width}")
     
