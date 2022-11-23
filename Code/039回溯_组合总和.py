@@ -24,8 +24,8 @@ def backTracking(strat, nowList):
 
 if __name__ == '__main__':
     condidate = [5,3,2]
-    condidate.sort()
     target = 8
+    condidate.sort()
     res = []
     backTracking(0, [])
     print(res)
