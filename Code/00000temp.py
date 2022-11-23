@@ -8,9 +8,11 @@
 # print(t[0:3])
 
 
-t = [2, 3]
-
-print(sum(t))
+a = '123112'
+s = 1
+i = 3
+print(int(a[s:i+1]))
+print(int(a[s:i+1]) > 255)
 
 
 
