@@ -8,10 +8,9 @@
 # print(t[0:3])
 
 
+t = [2, 3]
 
-
-
-
+print(sum(t))
 
 
 
