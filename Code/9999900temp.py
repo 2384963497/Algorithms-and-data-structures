@@ -1,4 +1,3 @@
 
-print(3 - '010'.count('0'))
-
-
+for i in range(2,2):
+    print(111)
