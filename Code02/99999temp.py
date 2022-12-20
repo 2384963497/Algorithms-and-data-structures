@@ -1,5 +1,3 @@
-import heapq
-a = [1,2,3]
-c = a.pop()
-print(c,a)
-heapq.heappush()   
+ls = [1,2,3]
+ls.extend((1,2))
+print(ls)
