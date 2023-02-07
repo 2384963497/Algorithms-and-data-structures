@@ -130,8 +130,8 @@
          *   从当前范围到下一层范围的条件就是步数+1(如果题目需要统计步数)
          *   如果当前指针在当前的最大窗口内那么可以尝试用当前位置的值更新nextMax
          *   前提是如果通过当前值再跳一步的范围大于nextMax
-         *   如果当前指针不在当前最大的窗口范围内，那么久跨一步，并且进入下一层范围；
-         *   再次判断当前范围内的值能否拓宽nextMax；遇到0则要判断nextMax是否最大只能达到当前0.0位置；
+         *   如果当前指针不在当前最大的窗口范围内，那么就跨一步，并且进入下一层范围；
+         *   再次判断当前范围内的值能否拓宽nextMax；遇到0则要判断nextMax是否最大只能达到当前0位置；
          *   如果是，则证明无法跳跃到终点(如果是最后一个位置的0则能到达终点)，不是则继续执行尝试更新nextMax和移动当前指针的操作
 
 *   实现代码
@@ -141,15 +141,17 @@
             def canJump(self, nums: List[int]) -> bool:
                 if len(nums) == 1:
                     return True
+                # step = 0
                 curMax = 0
                 nextMax = None
         
                 for i in range(len(nums) - 1):
+                    # 这里不需要走到最后一个位置；因为倒数第二个位置如果合法那么就一定能抵达最后，所以只需要判断到倒数第二即可;
                     if curMax < i:
                         # step += 1
                         # 因为从当前最大范围进入下一层最大范围的条件就是步数+1
                         curMax = nextMax
-                    nextMax = nums[i] + i if  nextMax == None or nextMax < nums[i] + i else nextMax
+                    nextMax = nums[i] + i if nextMax == None or nextMax < nums[i] + i else nextMax
                     if nums[i] == 0 and nextMax == i:
                         return False
                 return True
@@ -280,7 +282,7 @@
 
 -   问题描述
 
-    -   给定一个正整数数组arr，该数组所有子数组的和最小记作left，最大记作right，则在区间[left, right]上第一个正整数数组无法组成的数即为最小不可组成和，如果都能组合出，那么最小不可组成和就是right+1，将其返回
+    -   给定一个**正整数**数组arr，该数组所有子数组的和最小记作left，最大记作right，则在区间[left, right]上第一个正整数数组无法组成的数即为最小不可组成和，如果都能组合出，那么最小不可组成和就是right+1，将其返回
 
 -   解题思路
 
@@ -310,8 +312,6 @@
             return right + 1
         ```
 
-
-
 -   进阶问题
 
     -   如果现在能肯定数组中有1这个元素，请问能否实现比DP更快的算法输出最小不可组成和
@@ -320,7 +320,9 @@
 
     -   先将数组升序排序
     -   定义一个范围area`l:3`, 初值赋为1；数组指针从1开始，范围变量表示当前指针之前的元素能拼出[1, area]
-    -   如果当前指针所指元素 <= area`l:6`;说明当前所指元素在[1, area]，且当前位置之前能凑出[1, area]所有元素，那么加上当前元素area就能连续凑出[1, area + arr[i]] 更新area；如果一个当前值 > area [area, arr[i] - 1] 之前的数拼凑不出来，返回area+1
+    -   如果当前指针所指元素 <= area`l:6`;说明当前所指元素在[1, area]，且当前位置之前能凑出[1, area]所有元素，那么加上当前元素area就能连续凑出[1, area + arr[i]] 更新area；如果一个当前值 > area + 1 [area, arr[i] - 1] 之前的数拼凑不出来，返回area+1
+    -   例如如果当前值为9 而area为8  ； 9 <= area + 1 如果9加入，单独选9不需要area帮助能**将area这个连续的范围**扩充到9，如果选9让area帮忙解决1即可扩充到10；(因为area连续而且当前值合法的前提下是area中或者在area上届+1的位置)那么area在和当前值配合的情况下可以将范围扩充到[area+1, area+arr[i]]；如果当前值>area  + 1 证明area + 1 到当前值都之间的值都不可组成，返回area+1(因为当前位置及其往后的数都一定> area + 1，固然不可能再平凑出area + 1)
+    -   "为什么要求数组中一定要有1?" 因为要保证area从一开始就是连续的，假设arr中最小的是3那么area就无法[1, 2]在这个区间上拼凑出来，排序也是必须的一步
 
 -   实现代码
 
@@ -330,7 +332,7 @@
             area = 1
         
             for i in arr[1:]:
-                if i < area + 1:
+                if i <= area + 1:
                     # 合法
                     area += i
                 else:
@@ -341,6 +343,81 @@
 
 
 
+
+
+
+
+
+---
+
+## leetCode08.14. 布尔运算
+
+*   问题描述
+
+    *   [问题地址](https://leetcode.cn/problems/boolean-evaluation-lcci/)
+
+*   解题思路
+
+    *   如果按每个运算符为最后结合分类；那么将可以不重不漏地统计所有有效方法；按该运算符分成左右两个部分再进行递归即可；
+    *   递归的base case及是传入的表达式只有'0'或'1'两个字符时，此时如果字符为所需要的表达式值则返回1表示为一种有效方法；反之为0
+    *   递归时要根据当前运算符选择下层递归时左右两边的所有合法情况和所需表达式值
+    *   当得到两边所有合法方式数时将他们相乘，即可得到当前位置最后结合的所有不同合法情况
+    *   如此这般，依次统计每个运算符 最后结合的情况
+    *   优化：记忆化搜索
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def countEval(self, s: str, result: int) -> int:
+                res = 0
+                memo = dict()
+        
+                def func(s, r):
+                    # 记忆化搜索
+                    if memo.get(s + str(r)) != None:
+                        return memo[s + str(r)]
+                    if len(s) == 1:
+                        if int(s) == r:
+                            return 1
+                        else:
+                            return 0
+                    
+                    count = 0
+                    for i in range(1, len(s), 2):
+                        # 每一次都一定指向逻辑运算符
+                        cur = s[i]
+                        # punchline
+                        l0 = func(s[:i], 0)
+                        l1 = func(s[:i], 1)
+                        r0 = func(s[i + 1:], 0)
+                        r1 = func(s[i + 1:], 1)
+                        if cur == '|':
+                            # 在分类时必须分清每一种运算符每一种运算结果的可能性；左右两边各有True和False两种情况；所以为4种不同情况
+                            if r == 1:
+                                count += l1 * r0 + l0 * r1 + l1 * r1
+                            else:
+                                count += l0 * r0
+                        elif cur == '&':
+                            if r == 1:
+                                count += l1 * r1
+                            else:
+                                count += l1 * r0 + l0 * r0 + l0 * r1
+                        else:
+                            # ^ 不同为1 相同为0
+                            if r == 1:
+                                count += l1 * r0 + l0 * r1
+                            else:
+                                count += l1 * r1 + l0 * r0
+        
+                    # 记忆化搜索
+                    memo[s + str(r)] = count
+                    return memo[s + str(r)]
+                
+                res = func(s, result)
+        
+                return res
+        ```
 
 
 
