@@ -425,6 +425,107 @@
 
 
 
+---
+
+## leetCode517 超级洗衣机
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/super-washing-machines/description/)
+
+*   解题思路
+
+    *   总体思路和最长自增子序列类题大体相同——求出每个位置的瓶颈或最优解，最终在综合每个位置求出最终解
+    *   此题中，如果计算得到每个位置需要运行的轮次，那么最终的答案就是所有位置中的最大值
+    *   如果最终能平分，那么每个位置上的最终值都是一样的，且可以轻松计算得到`l:12`
+    *   一个位置的左侧和，右侧和也可以轻松得到；如果当前位置的左右两侧所需都为负数，证明当前位置要分别像左右两侧运送衣服；
+    *   那么当前位置的值就是两边所需件数和的绝对值`l:21`；因为要向两侧运送衣服只能一件一件地运，运送一个位置一轮中只能向一个方向送衣服
+    *   否则，当前位置的运行轮次就是两侧值的绝对值中的较大者`l:23`
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def findMinMoves(self, machines: List[int]) -> int:
+                LEN = len(machines)
+                SUM = sum(machines)
+                if LEN == 1:
+                    return 0
+                if SUM % LEN != 0:
+                    # 不可能被平分
+                    return -1
+                
+        
+                target =  SUM // LEN
+                
+                res = -1
+                lSum = 0
+        
+                for i in range(LEN):
+                    lNeed = lSum - i * target
+                    rNeed = (SUM - lSum - machines[i]) - (target * (LEN - i - 1))
+                    if lNeed < 0 and rNeed < 0:
+                        temp = abs(lNeed + rNeed)
+                    else:
+                        temp = max(abs(lNeed), abs(rNeed))
+                    lSum += machines[i]
+                    res = max(res, temp)
+                
+                return res
+        ```
+
+
+
+---
+
+## step sum
+
+*   问题描述
+
+    *   step sum定义：一个数的步骤和 为该数字依次抹去最右侧数字的数值之和
+    *   例如 132： 132 + 13 + 1 = 146 那么146就是132的步骤和
+    *   给定一个数字n，如果是某个数字m的步骤和则返回m，如果不是则返回 -1
+
+*   解题思路
+
+    *   单调性 就要 联想到二分
+    *   如果A > B，A的步骤和为a，B的步骤和为b那么 一定有a > b
+    *   所以该题可以用二分
+
+*   实现代码
+
+    *   ```python
+        num = 269
+        
+        left = 0
+        right = num
+        
+        def getStepSum(n):
+            res = 0
+            while n:
+                res += n
+                n //= 10
+            return res
+        
+        while left <= right:
+            mid = (left + right) // 2
+            temp = getStepSum(mid)
+            if temp == num:
+                break
+            elif temp < num:
+                left = mid + 1
+            else:
+                right = mid - 1
+        
+        if left > right:
+            print(-1)
+        else:
+            print(mid)
+        ```
+
+
+
+
+
 
 
 
@@ -443,3 +544,4 @@
 
 *   问题描述
     *   [问题地址]()
+
