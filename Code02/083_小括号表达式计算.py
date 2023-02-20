@@ -1,51 +1,62 @@
-# str = "48*((70-65)-43)+8*1"
-# str = "-14*(-1)*2+(-8*2*(2+3))-20"
-str = "-81+1"
+grid = [[0,1],[1,0]]
+# [[1,1,1,1,1],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,0,1],[1,1,1,1,1]]
+from collections import deque
 
-def func(s, begin):
-    stack = []
-    
-    i = begin
+M = len(grid[0])
+N = len(grid)
+# 方向偏移
+dir = ((0, 1), (0, -1), (1, 0), (-1, 0))
 
-    nums = 0
-    while i < len(s):
-        if s[i] >= '0' and s[i] <= '9':
-            nums = nums * 10 + int(s[i]) 
-        elif s[i] == '(':
-            nums, i = func(s, i + 1)
-        elif s[i] == ')':
-            break
-        else:
-            # 当前字符必定为运算符
-            if stack != [] and stack[-1] in '*/':
-                # 栈顶需要提前运算的乘除情况
-                x = stack.pop()
-                a = stack.pop()
-                stack.append(a * nums if x == '*' else a / nums)
-            else:
-                # +-情况；或者是空栈的情况，此时同样压入nums再压入*/运算符
-                stack.append(nums)
-            nums = 0
-            stack.append(s[i])
+# 
+def markIsland(x, y):
+    markQue = deque()
+    tempQue = deque()
+
+    tempQue.append((x, y))
+    while len(tempQue) != 0:
+        curX, curY = tempQue.popleft()
+        grid[curX][curY] = 2
+        tempQue.append((curX, curY))
+
+        for i, j in dir:
+            tX = curX + i
+            tY = curY + j
+            if tX < 0 or tY < 0 or tX >= N or tY >= M or grid[tX][tY] != 1:
+                continue
+            markQue.append((tX, tY))
+    return tempQue
         
-        i += 1
 
-    # 再出push当前的nums
-    if stack != [] and stack[-1] in '*/':
-        x = stack.pop()
-        a = stack.pop()
-        stack.append(a * nums if x == '*' else a / nums)
-    else:
-        stack.append(nums)
-
-    # 计算栈中最终值
-    while len(stack) != 1:
-        b = stack.pop()
-        x = stack.pop()
-        a = stack.pop()
-        stack.append(a + b if x == '+' else a - b)
     
-    return stack[0], i
 
-print(func(str, 0)[0])
+# 扫描到第一座岛
+f = False
+for i in range(M):
+    for j in range(N):
+        if grid[i][j] == 1:
+            tempQue = markIsland(i, j)
+            f = True
+            break
+    if f:
+        break
 
+
+# 开始多源bfs，直到碰到第二座岛
+step = 1
+while True:
+    nowLen = len(tempQue)
+    for i in range(nowLen):
+        curX, curY = tempQue.popleft()
+        grid[curX][curY] = 2
+
+        for i, j in dir:
+            tX = curX + i
+            tY = curY + j
+            if not (tX < 0 or tY < 0 or tX >= N or tY >= M):
+                if grid[tX][tY] == 1:
+                    print(step - 1)
+                    input("wait")
+                elif  grid[tX][tY] == 0:
+                    tempQue.append((tX, tY))
+
+    step += 1

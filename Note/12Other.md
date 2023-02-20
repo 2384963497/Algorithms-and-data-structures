@@ -524,6 +524,566 @@
 
 
 
+---
+
+## leetCode378 有序矩阵中第 K 小的元素
+
+*   问题描述
+
+    *   [问题地址](https://leetcode.cn/problems/kth-smallest-element-in-a-sorted-matrix/description/)
+
+*   解题思路_堆
+
+    *   解题思路和merge多个有序链表思路相同，依次将节点加入堆中，弹出一个节点时如果它有后续节点则将节点加入堆
+    *   弹出k次 所得到的数字就是第k小值
+    *   该题难点就是在于堆的使用
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def kthSmallest(self, matrix: List[List[int]], k: int) -> int:
+                LEN = len(matrix)
+                temp = [(matrix[i][0],i , 0) for i in range(len(matrix))]
+                heapq.heapify(temp)
+        
+                for i in range(k):
+                    res, x, y = heapq.heappop(temp)
+                    if y <= LEN - 2:
+                        heapq.heappush(temp, (matrix[x][y + 1], x, y + 1))
+                return res
+        ```
+
+*   解题思路_继续单调性的二分
+
+    *   略
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def kthSmallest(self, matrix: List[List[int]], k: int) -> int:
+                Len = len(matrix)
+        
+                def getInfo(target):
+                    # 返回小于等于target的数字的个数，并返回向下最接近target的值
+                    n = 0
+                    num = None
+        
+                    y = Len - 1
+                    x = 0
+                    while x <= Len - 1 and y >= 0:
+                        if matrix[x][y] <= target:
+                            n += (y + 1)
+                            num = matrix[x][y] if num == None or num < matrix[x][y] else num
+                            x += 1
+                        else:
+                            y -= 1
+                    return n, num
+                
+                left = matrix[0][0]
+                right = matrix[-1][-1]
+                while left <= right:
+                    mid = left + ((right - left) >> 1)
+                    n, num = getInfo(mid)
+        
+                    if n == k:
+                        res = num
+                        break
+                    elif n < k:
+                        left = mid + 1
+                    else:
+                        res = num
+                        right = mid - 1
+                return res
+        ```
+
+
+
+
+---
+
+## leetCode940 不同的子序列 II
+
+*   问题描述
+
+    *   [问题地址](https://leetcode.cn/problems/distinct-subsequences-ii/)
+
+*   解题思路
+
+    *   假设字符串中没有重复字符；假设从左向右依次扫描，扫描到i位置时，[0,i - 1]的子序列个数为pre，那么加入当前字符后，子序列个数就是pre * 2
+    *   因为在每一个pre的基础上加入一个当前字符，再加上原本的pre都是不重不漏的
+    *   假如存在重复字符；如果再按之前的方式处理，就会出现重复的现象
+    *   <img src="images/image-20230215110608096.png" alt="image-20230215110608096" style="zoom: 67%;" />
+    *   coding技巧：可以一开始包含空集，在最后输出步骤将答案 - 1 即可，这样可以方便每次插入数时递推公式的统一
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def distinctSubseqII(self, s: str) -> int:
+                
+                memo = dict()
+                # 计算时先包含空集，最后输出-1即可，因为这样方便递推
+                cur = 1
+                pre = cur
+                for i in range(len(s)):
+                    if memo.get(s[i]) == None:
+                        # 每一个字符上一次出现位置时的值
+                        cur = pre * 2
+                    else:
+                        cur = pre * 2 - memo[s[i]]
+                    memo[s[i]] = pre
+                    pre = cur
+                
+                return (cur - 1) % (10**9 + 7)
+        ```
+
+
+
+
+
+
+---
+
+## leetCode632 最小区间
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/smallest-range-covering-elements-from-k-lists/description/)
+
+*   解题思路
+
+    *   利用一行的单调性特点 + 小根堆
+    *   先将每一行的首元素加入堆中去，同时带上每个元素的行列信息
+    *   现在堆中的最小值和最大值组成的区间一定符合每一行中至少一个元素在其中的要求，在此基础上不断地优化和缩小即可
+    *   注意小根堆只能保证第一个元素最小，不能保证最大元素所处位置，所以在加入元素时记录
+    *   依次弹出元素，判断当前元素值和当前堆中的最大值是否比之前的结果更加优，尝试更新
+    *   在每次加入一个元素时判断它是否比当前堆中的最大值大，每次加入元素判断它和当时最大值，这样就能结合堆的特性不停得到最大值和最小值
+    *   再加入当前处理元素的后一个元素到堆中去，如果没有后续元素就退出并返回当前答案
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def smallestRange(self, nums: List[List[int]]) -> List[int]:
+                heap = []
+                resLeft = resRight = None
+                right = None
+        
+                for i in range(len(nums)):
+                    right = nums[i][0] if right == None or right < nums[i][0] else right
+                    heapq.heappush(heap, (nums[i][0], i, 0))
+                
+                resLeft = heap[0][0]
+                resRight = right
+                while True:
+                    left, x, y = heapq.heappop(heap)
+        
+                    # 尝试更新答案
+                    if right - left < resRight - resLeft:
+                        resLeft, resRight = left, right
+                        if right - left == 0:	# 优化	
+                            return [resLeft, resRight]
+                    
+                    if y + 1 < len(nums[x]):
+                        # 当前点 还有后续
+                        heapq.heappush(heap, (nums[x][y + 1], x, y + 1))
+                        if nums[x][y + 1] > right:
+                            right = nums[x][y + 1]
+                    else:
+                        break     
+                return [resLeft, resRight]
+        ```
+
+
+
+
+
+
+---
+
+## leetCode169 多数元素(水王数)
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/majority-element/description/)
+
+*   解题思路
+
+    *   同时删除两个不同的元素，最终剩余的就**有可能为水王数**，再遍历数组一遍进行个数统计在计算便可以验证
+    *   实现同时删除两个不同的元素，指针从左往右扫描，定义一个遍历target，一个计数变量tNum表示target值出现的次数
+    *   如果当前target为空则将当前值赋给target，如果当前值不等于target那么tNum -= 1，如果tNum归0了证明targe消耗完了，置空
+    *   如果当前值等于target那么就tNum += 1
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def majorityElement(self, nums: List[int]) -> int:
+                N = len(nums)
+        
+                target = None
+                tNum = 0
+        
+                for i in range(N):
+                    if target == None:
+                        target = nums[i]
+                        tNum = 1
+                    elif target != nums[i]:
+                        tNum -= 1
+                        if tNum == 0:
+                            target = None
+                    else:
+                        tNum += 1
+        		
+                
+                # 如果没有数字存活，说明不存在这个数
+                # 此题中是一定存在水王数的，需要验证存活的数字是否有效
+                # if target == None:
+                #     return None
+                # count = 0
+                # for i in range(N):
+                #     if nums[i] == target:
+                #         count += 1
+                
+                # return True if count / N > 0.5 else False
+        
+                return target
+        ```
+
+
+
+---
+
+## leetCode229 多数元素II
+
+*   问题描述
+
+    *   [问题地址](https://leetcode.cn/problems/majority-element-ii/)
+
+*   解题思路
+
+    *   如果要求出现初次超过n/k，k是指定整数，k为2时就是 水王数问题，k不为2时其解题思路大致与k为2相同
+    *   符合条件的数最多为k - 1个
+    *   k个数为一组删除；
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def majorityElement(self, nums: List[int]) -> List[int]:
+                k = 3
+                N = len(nums)
+                # 
+                target = dict()
+        
+                for i in range(N):
+                    # 如果当前字符在target中:
+                    if target.get(nums[i]) != None:
+                        target[nums[i]] += 1
+                    else:
+                        if len(target) == k - 1:
+                            # 满了加不了了，那么表中所有元素-1
+                            temp = []
+                            for j in target:
+                                target[j] -= 1
+                                if target[j] == 0:
+                                    temp.append(j)
+                            for j in temp:
+                                target.pop(j)
+                        else:
+                            target[nums[i]] = 1
+                for j in target:
+                    target[j] = 0
+                
+                for i in range(N):
+                    if target.get(nums[i]) != None:
+                        target[nums[i]] += 1
+                
+                res = []
+                for j in target:
+                    if target[j] > N / k:
+                        res.append(j)
+                
+                return res
+        ```
+
+
+
+
+
+
+---
+
+## leetCode402 移掉 K 位数字
+
+*   问题描述
+
+    *   [问题地址](https://leetcode.cn/problems/remove-k-digits/)
+
+*   解题思路
+
+    *   一个数值如果想尽量大，那么对应位置上就存在单调性
+    *   利用单调栈的特点，确保一个数字一定比之前的数字都小(前提是删除名额还有剩)
+    *   每个数字依次入栈，在入栈之前删除所有比它大的字符(前提是删除名额还有剩)
+    *   从左往右入栈，所以是优先删除左侧较小的数，这样比删除右侧较小的数让一个数变小的趋势跟快
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def removeKdigits(self, num: str, k: int) -> str:
+                N = len(num)
+                remain = N - k
+                delNum = k
+                if remain <= 0:
+                    return '0'
+                
+                stack = []
+                for c in num:
+                    while stack and delNum > 0 and stack[-1] > c:
+                        stack.pop()
+                        delNum -= 1
+                    stack.append(c)
+                res = ''.join(stack[:remain]).lstrip('0')
+                return res if res != '' else '0'
+        ```
+
+
+
+
+
+
+---
+
+## leetCode316. 去除重复字母
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/remove-duplicate-letters/)
+
+*   解题思路
+
+    *   统计每个字符出现的次数；如果其实位置定位-1，那么统计出的字典也可以理解为，当前位置往后字符出现的次数
+    *   利用单调栈的特点，依次从左往右入栈每个字符，如果当前字符已经在栈中了则直接将当前字符在字典中-1，如果不在，那么久要找到它应该在的位置
+    *   通过删除前面的数字使得追加当前字符后字典序变小，删除当前字符之前的比当前字符大的字符
+    *   删除的前提：删除字符在当前位置往后必须还有
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def removeDuplicateLetters(self, s: str) -> str:
+                import collections
+                memo = collections.Counter(s)
+                resLen = len(memo)
+        
+                stack = []
+                for c in s:
+                    if c not in stack:
+                        # 找到合适位置
+                        while stack and stack[-1] > c and memo[stack[-1]] > 0:
+                            stack.pop()
+                        stack.append(c)
+                    memo[c] -= 1
+                return ''.join(stack)
+        ```
+
+
+
+
+
+
+---
+
+## leetCode321 拼接最大数
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/create-maximum-number/)
+
+*   解题思路
+
+    *   因为不确定从每个数中分别取多少个元素，所以只能穷举两个数组取值的可能；
+    *   实现从一个数组中去长度为k的子序列，要求字面值要最大；方法和移除k个数的题目的方法相似
+    *   分别求两个数组中取不同长度最大的子序列；每次得到之后都要将两个所得数组合并
+    *   合并时注意不能单纯采用节点采摘的方法，因为每个数组中都是无序的，要保持的是相对次序
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def maxNumber(self, nums1: List[int], nums2: List[int], k: int) -> List[int]:
+        
+                def func(nums, k):
+                    if k == 0:
+                        return []
+                    if len(nums) < k:
+                        return -1
+        
+                    delNum = len(nums) - k
+                    # 在nums中子序列长度为k的情况下，值最大返回
+                    stack = []
+                    for n in nums:
+                        while stack and delNum > 0 and stack[-1] < n:
+                            stack.pop()
+                            delNum -= 1
+                        stack.append(n)
+                    return stack[:k]
+        
+                # puchline
+                def merge(r1, r2):
+                    p1 = p2 = 0
+                    res = []
+                    while p1 < len(r1) and p2 < len(r2):
+                        if r1[p1:] > r2[p2:]:
+                            res.append(r1[p1])
+                            p1 += 1
+                        else:
+                            res.append(r2[p2])
+                            p2 += 1
+                    if p1 == len(r1):
+                        res += r2[p2:]
+                    else:
+                        res += r1[p1:]
+                    return res
+                    
+                res = [-1]
+                for i in range(k + 1):
+                    r1 = func(nums1, i)
+                    if r1 == -1:
+                        continue
+                    r2 = func(nums2, k - i)
+                    if r2 == -1:
+                        continue
+                    temp = merge(r1, r2)
+                    res = res if res > temp else temp
+                return res
+            
+        ```
+
+
+
+
+
+
+
+
+---
+
+## leetCode2 两数相加
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/add-two-numbers/description/)
+
+*   解题思路
+
+    *   和做加法一样，定义一个r初值赋值为0，r表示之前位的进位信息；
+    *   创建一个新链表时可以多创建出一个正常节点，最后返回这个节点的next就是一条完整的链表
+    *   如果一个链表节点耗尽了，那么领一个链表的节点在相加时只需要考虑自己和r相加就可以了
+    *   在两个链表都耗尽时判断r时候为1
+
+*   实现代码
+
+    *   ```python
+        # Definition for singly-linked list.
+        # class ListNode:
+        #     def __init__(self, val=0, next=None):
+        #         self.val = val
+        #         self.next = next
+        class Solution:
+            def addTwoNumbers(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
+                
+                # punchline
+                head = resList = ListNode()
+                p1 = l1
+                p2 = l2
+                
+                r = 0
+                while p1 or p2:
+                    temp = r
+                    if p1 != None:
+                        temp += p1.val
+                        p1 = p1.next
+                    if p2 != None:
+                        temp += p2.val
+                        p2 = p2.next
+                    
+                    resList.next = ListNode(temp % 10)
+                    resList = resList.next
+                    r = temp // 10
+        
+                if r == 1:
+                    resList.next = ListNode(r).
+                    
+                # punchline
+                return head.next
+        ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+## leetCode517 超级洗衣机
+
+*   问题描述
+
+    *   [问题地址](https://leetcode.cn/problems/super-washing-machines/description/)
+
+*   解题思路
+
+    *   所给数据可以计算得到每个位置最终应该得到的衣物数量，且可以过滤`l:3-9`；
+    *   每个位置左右两边的衣服总和信息，都能计算得到当前位置使回合数增加到何种程度；
+    *   每个位置都计算一个位置，最终求个最大值就是最终结果
+    *   如果左右两边都是负数，说明当前位置需要像左右两边分别发所需数量的衣服，因为一台机器同时只能向一个方向发一件衣服，所以为`l:20`
+    *   其他情况都是左右两边中绝对值较大的那个
+    *   再求左右两边衣服数量时可以维护一个左侧和lSum，右侧和可以通过计算得到
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def findMinMoves(self, machines: List[int]) -> int:
+                LEN = len(machines)
+                SUM = sum(machines)
+                if LEN == 1:
+                    return 0
+                if SUM % LEN != 0:
+                    # 不可能被平分
+                    return -1
+        
+                target =  SUM // LEN
+                
+                res = -1
+                lSum = 0
+        
+                for i in range(LEN):
+                    lNeed = lSum - i * target
+                    rNeed = (SUM - lSum - machines[i]) - (target * (LEN - i - 1))
+                    if lNeed < 0 and rNeed < 0:
+                        temp = abs(lNeed + rNeed)
+                    else:
+                        temp = max(abs(lNeed), abs(rNeed))
+                    lSum += machines[i]
+                    res = max(res, temp)
+                
+                return res
+        ```
+
+    *   
+
+
+
+
+
+
 
 
 
