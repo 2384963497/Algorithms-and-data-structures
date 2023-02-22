@@ -1077,9 +1077,176 @@
                 return res
         ```
 
-    *   
 
 
+
+
+
+
+---
+
+## leetCode13 罗马数字转整数
+
+*   问题描述
+
+    *   [问题地址](https://leetcode.cn/problems/roman-to-integer/)
+
+*   解题思路
+
+    *   罗马数字中不存在位权，所以每个字符都代表一个完整的数，最终将每个数对应值累加即可
+    *   注意当4、9、40、90这些值时是两个字符表示一个值，所以判断当前字符是否是和后面一个字符共同结合表示一个值
+    *   结合哈希表
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def romanToInt(self, s: str) -> int:
+                meme1 = {
+                    'I': 1,
+                    'V': 5,
+                    'X': 10,
+                    'L': 50,
+                    'C': 100,
+                    'D': 500,
+                    'M': 1000
+                }
+                memo2 = {
+                    'IV': 4,
+                    'IX': 9,
+                    'XL': 40,
+                    'XC': 90,
+                    'CD': 400,
+                    'CM': 900
+                }
+                sum = 0
+                i = 0
+                while i < len(s):
+                    if memo2.get(s[i:i + 2]):
+                        sum += memo2[s[i:i + 2]]
+                        i += 1
+                    else:
+                        sum += meme1[s[i]]
+                    i += 1
+                return sum
+        ```
+
+
+
+
+
+
+---
+
+## leetCode12 整数转罗马数字
+
+*   问题描述
+
+    *   [问题地址](https://leetcode.cn/problems/integer-to-roman/description/)
+
+*   解题思路_低端版本
+
+    *   因为阿拉伯数字中是又数字和位权共同表示一个位置上的信息的，所以我们依次取出每个位置上的数字，转换为对应值即可
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def intToRoman(self, num: int) -> str:
+                res = ''
+                memo1 = {1: 'I', 2:'II', 3:'III', 4:'IV', 5:'V', 6:'VI', 7:'VII', 8:'VIII', 9:'IX', 0: ''}
+                memo10 = {1: 'X', 2:'XX', 3:'XXX', 4:'XL', 5:'L', 6:'LX', 7:'LXX', 8:'LXXX', 9:'XC', 0: ''}
+                memo100 = {1: 'C', 2:'CC', 3:'CCC', 4:'CD', 5:'D', 6:'DC', 7:'DCC', 8:'DCCC', 9:'CM', 0: ''}
+                memo1000 = {1: 'M', 2:'MM', 3:'MMM', 0: ''}
+        
+                res += memo1000[num // 1000]
+                num %= 1000
+                res += memo100[num // 100]
+                num %= 100
+                res += memo10[num // 10]
+                num %= 10
+                res += memo1[num]
+        
+                return res
+        ```
+
+*   解题思路_高端版本
+
+    *   大体思路与上面的代码一样，不同的是这种方法巧妙地运用了整除和取余的特性，将特殊的需要两个字符表示的值枚举清楚，其他的重复的都可以通过整除的商`l:8-9`复制
+    *   哈希表内的顺序必须是从打到小
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def intToRoman(self, num: int) -> str:
+                res = ''
+                
+                memo = {1000:'M', 900:'CM', 500:'D', 400:'CD', 100:'C', 90:'XC', 50:'L', 40:'XL', 10:'X', 9:'IX', 5:'V', 4:'IV', 1:'I'}
+                
+                for q in memo:
+                    times = num // q
+                    res += memo[q] * times
+                    num %= q
+               
+                return res
+        ```
+
+
+
+
+---
+
+### leetCode14 最长公共前缀
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/longest-common-prefix/)
+
+*   解题思路_指针
+
+    *   用一个指针i从0开始，依次判断每个位置上的i是否相同，如果不同或者其中一个字符串已经到了结尾就退出并返回`l:9 12`
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def longestCommonPrefix(self, strs: List[str]) -> str:
+                if len(strs) == 1:
+                    return strs[0]
+        
+                i = 0
+                while True:
+                    for j in range(1, len(strs)):
+                        if i == len(strs[j]) or i == len(strs[j - 1]) or strs[j][i] != strs[j - 1][i]:
+                            return strs[0][:i]
+                    i += 1
+                return strs[0][:i]
+        ```
+
+*   解题思路_两两比较
+
+    *   假设需要求的是`s1、s2、s3、s4....sn`的最长公共前缀，s1和s2的最长公共前缀为r1，那么问题就等价于`r1、s3、s4....sn`的最长公共前缀
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def longestCommonPrefix(self, strs: List[str]) -> str:
+                if len(strs) == 1:
+                    return strs[0]
+        
+                def commandPrefix(s1, s2):
+                    i = 0
+                    while i < len(s1) and i < len(s2) and s1[i] == s2[i]:
+                        i += 1
+                    
+                    return s1[:i]
+                
+                pre = strs[0]
+                for i in range(1, len(strs)):
+                    pre = commandPrefix(pre, strs[i])
+                return pre
+        ```
 
 
 

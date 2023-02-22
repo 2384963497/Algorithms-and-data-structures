@@ -1,2 +1,4 @@
-s = '123'
-print()
+res = []
+p = [[123,1,2]]
+res += p
+print(res)
