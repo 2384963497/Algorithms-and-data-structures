@@ -1,4 +1,3 @@
-res = []
-p = [[123,1,2]]
-res += p
-print(res)
+a = [0,1,2,3,4]
+a.insert(1,' new')
+print(a)

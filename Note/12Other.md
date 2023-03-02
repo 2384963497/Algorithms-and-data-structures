@@ -1197,7 +1197,7 @@
 
 ---
 
-### leetCode14 最长公共前缀
+## leetCode14 最长公共前缀
 
 *   问题描述
     *   [问题地址](https://leetcode.cn/problems/longest-common-prefix/)
@@ -1253,6 +1253,557 @@
 
 
 
+---
+
+## leetCode26 两数相除
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/divide-two-integers/)
+
+-   两数相加
+
+    -   ^：运算可以视作不进位相加；两数进位信息可以通过A & B << 1得到
+    -   所以如果 A ^ B + A & B << 1即为A + B的值，可以递归，也可以循环直到两个数进位信息为0那么它们的不进位相加就是它们相加的值
+
+-   实现代码_两数相加
+
+    -   ```python
+        def add(A, B)
+        	sum = A ^ B
+            j = A & B << 1
+            while j != 0:
+                temp = sum ^ j
+                j = sum & j << 1
+                sum = temp
+            return sum
+        
+        def add(a, b):
+            if a & b == 0:
+                return a ^ b
+            t = a ^ b
+            j = a & b
+            return add(t, j << 1)
+        
+        def add1(a, b):
+            sum = a
+            while b != 0:
+                sum = a ^ b
+                b = (a & b) << 1
+                a = sum
+            return sum
+        ```
+
+-   两数相减
+
+    -   ^也可以理解成不借位相减；借位信息可以通过 (A ^ B & B)  << 1
+    -   如果是A < B则需要返回 add(~minus(B, A), 1)
+
+-   实现代码
+
+    -   ```python
+        def minus2(a, b):
+            while b != 0:
+                temp = a ^ b
+                b = ((a ^ b) & b) << 1
+                a = temp
+        
+            return a 
+        
+        def minus(a, b):
+                    # 实现减法
+                    a = a ^ b
+                    b = (a & b) << 1
+                    while b != 0:
+                        # 存在借位信息
+                        a = a ^ b
+                        b = (b & a) << 1
+                    
+                    return a
+        ```
+
+-   两数相乘
+
+    -   列式和十进制相乘相同;
+    -   <img src="images/image-20230228114011025.png" alt="image-20230228114011025" style="zoom:33%;" />
+    -   为1就加上A左移对应位的值，0则只左移A不累加
+
+-   实现代码_两数相乘
+
+    -   ```python
+        def mutili(A, B):
+        	res = 0
+            while B:
+                if B & 1 == 1:
+                    res += A
+                A << 1
+                B >> 1
+           	return res
+        ```
+
+-   两数相除
+
+    -   根据乘法逆推
+
+-   实现代码_两数相除
+
+    -   ```python
+        def div(a, b):
+        # 实现两个整数相除
+            res = 0
+        
+            for i in range(30, -1, -1):
+                t = a >> i
+                if t >= b:
+                    res |= 1 << i
+                    a = minus(a, b << i)
+            return res
+        
+        if a > 0 and b > 0 or a < 0 and b < 0:
+            return div(abs(a), abs(b))
+        else:
+            return -div(abs(a), abs(b))
+        ```
+
+
+
+
+
+
+
+
+
+---
+
+## leetCode36 有效的数独
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/valid-sudoku/)
+
+-   解题思路
+
+    -   创建每一行的集合，每一列的集合，每个组的集合，都初始化为空集；当遍历到一个新点时，通过下标可以计算他所处的行列、组的集合，判断当前值是否已经在三个集合中出现过，出现过则无效；没出现过则将值加入每个集合，遍历下个点
+    -   计算组时可以通过行列下标计算得到一维组号，也可以一开始就定义为二维组号
+
+-   实现代码
+
+    -   ```python
+        class Solution:
+            def isValidSudoku(self, board: List[List[str]]) -> bool:
+                row = [[False] * 9  for _ in range(9)]
+                col = [[False] * 9  for _ in range(9)]
+                area = [[[False for j in range(9)] for i in range(3)] for z in range(3)]
+        
+                for i in range(9):
+                    for j in range(9):
+                        if board[i][j] == '.':
+                            continue
+                        now = int(board[i][j])
+                        if row[i][now - 1] or col[j][now - 1] or area[i // 3][j // 3][now - 1]:
+                            return False
+                        row[i][now - 1] = True
+                        col[j][now - 1] = True
+                        area[i // 3][j // 3][now - 1] = True
+                
+                return True
+        ```
+
+
+
+
+
+
+
+
+---
+
+## leetCode38 外观数列
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/count-and-say/)
+
+-   解题思路
+
+    -   主要是阅读理解，垃圾题
+
+-   实现代码
+
+    -   ```python
+        class Solution:
+            def countAndSay(self, n: int) -> str:
+        
+                def func(nowS, m):
+                    if m == n:
+                        return nowS
+                    tempS = ''
+                    nowChar = nowS[0]
+                    count = 1
+        
+                    for i in range(1, len(nowS)):
+                        if nowS[i] == nowChar:
+                            count += 1
+                        else:
+                            tempS = tempS + str(count) + nowChar
+                            nowChar = nowS[i]
+                            count = 1
+                    tempS = tempS + str(count) + nowChar
+                
+                return func('1', 1)
+        ```
+
+
+
+
+
+
+---
+
+## leetCode41 缺失的第一个正数:star:
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/first-missing-positive/description/)
+
+-   解题思路
+
+    -   原地hash：一个数组也可以看做一个特殊的哈希表，key对应下标，value对应值
+    -   尝试将value的值放到下标为value的位置上; 前提value < len(nums)；
+    -   为了避免死循环的情况，如果目标位置上的值和当前值相同就不交换`l:8`
+    -   注意交换后当前指针需要再次判断当前位置交换得到的值`l:8`
+
+-   实现代码
+
+    -   ```python
+        class Solution:
+            def firstMissingPositive(self, nums: List[int]) -> int:
+                N = len(nums)
+                
+                i = 0
+                while i < N:
+                    temp = nums[i]
+                    while temp > 0 and temp < N and nums[temp - 1] != temp:
+                        nums[temp - 1], nums[i] = nums[i], nums[temp - 1]
+                        temp = nums[i]
+                    i += 1
+                i = 0
+                while i < N and nums[i] == i + 1:
+                    i += 1
+                return i + 1
+        ```
+
+
+
+
+
+
+
+
+
+
+---
+
+
+
+
+
+
+
+
+---
+
+## leetCode48 旋转图像:star:
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/rotate-image/)
+
+-   解题思路
+
+    -   通过观察可以得出结论，一个正方形旋转90°，就是又外向内每一层旋转90°
+    -   每一层中交换的位置有存在很强的规律性，可以通过两个对角线的端点表示一层
+    -   如果当前层的的宽度为n那么有n-1组4个点需要相互交换；可以通过当前组号和两对角线端点计算当前组4个点的对应坐标
+
+-   实现代码
+
+    -   ```python
+        class Solution:
+            def rotate(self, matrix: List[List[int]]) -> None:
+                """
+                Do not return anything, modify matrix in-place instead.
+                """
+                N = len(matrix)
+                if N == 1:
+                    return 
+        
+                def myRotate(x1, y1, x2, y2):
+                    for i in range(y2 - y1):
+                        p1 = (x1, y1 + i)
+                        p2 = (x1 + i, y2)
+                        p3 = (x2, y2 - i)
+                        p4 = (x2 - i, y1)
+                        temp = matrix[p4[0]][p4[1]]
+                        matrix[p4[0]][p4[1]] = matrix[p3[0]][p3[1]]
+                        matrix[p3[0]][p3[1]] = matrix[p2[0]][p2[1]]
+                        matrix[p2[0]][p2[1]] = matrix[p1[0]][p1[1]]
+                        matrix[p1[0]][p1[1]] = temp
+        
+                x1 = 0
+                y1 = 0
+                x2 = N - 1
+                y2 = N - 1
+                while x1 < x2:
+                    myRotate(x1, y1, x2, y2)
+                    x1 += 1
+                    y1 += 1
+                    x2 -= 1
+                    y2 -= 1
+        ```
+
+
+
+
+
+
+---
+
+## leetCode49 字母异位词分组:star:
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/group-anagrams/)
+
+*   解题思路
+
+    *   通过将异位词分类借助哈希表查询统计实现求解
+    *   难点就是如何组织哈希表的key
+        *   方法1：**如果字符种类有限**，比如此题中说明了字符串有小写字母组成，那么就可以从'a'-'z'统计每个字符出现的次数，然后生成key，因为异位词每个字符出现的次数都相同，所以通过这种方法的到的key一定能分类
+
+    *   方法2：可以对字符串进行排序，异位词排序后的结果一定相同
+
+*   实现代码_方法1
+
+    *   ```python
+        class Solution:
+            def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+                import collections
+                res = []
+        
+                def getKey(s):
+                    res = ''
+                    temp = dict()
+                    for i in range(26):
+                        temp[chr(97 + i)] = 0
+        
+                    for c in s:
+                        temp[c]  += 1
+        
+                    for key in temp:
+                        if temp[key] != 0:
+                            res = res + key + str(temp[key])
+                    return res
+        
+        
+                group = dict()
+                for i in range(len(strs)):
+                    key = getKey(strs[i])
+                    if group.get(key) == None:
+                        group[key] = [strs[i]]
+                    else:
+                        group[key].append(strs[i])
+                
+                for i in group:
+                    res.append(group[i])
+                return res
+        ```
+
+
+
+
+
+
+
+---
+
+## leetCode50 Pow(x, n):star:
+
+*   问题描述
+
+    *   [问题地址](https://leetcode.cn/problems/powx-n/description/)
+
+*   解题思路
+
+    *   [优质讲解](https://www.bilibili.com/video/BV16Z4y1M7y1/?spm_id_from=333.999.top_right_bar_window_history.content.click)
+    *   快速幂算法:平凡解中每次的乘数都是x，而快速幂算法每次乘数都翻两倍，再通过n的二进制位判断当前对应乘数是否要**累乘**到结果上
+    *   关于最小值:`l:15`
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def myPow(self, x: float, n: int) -> float:
+                f = 1 if n >= 0 else -1
+                n = n if n >= 0 else -n
+        
+                t = x
+                res = 1
+                while n != 0:
+                    if n & 1 == 1:
+                        res *= t
+                    t *= t
+                    n >>= 1
+                
+                return res if f == 1 else 1 / res
+                #  如果n是系统最小值，无法正确地转化为系统最大值，那么先计算x的系统最大次方
+                #  然后乘以一次x，最后用1除以它即可
+        ```
+
+
+
+
+---
+
+## leetCode54 螺旋矩阵
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/spiral-matrix/description/)
+*   解题思路
+    *   通过规定当前方向和当前矩阵边界，压缩矩阵
+
+-   实现代码
+
+    -   ```python
+        class Solution:
+            def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
+                M = len(matrix)
+                N = len(matrix[0])
+                dire = {'Dright':(0, 1), 'Dbottom':(1, 0), 'Dleft':(0, -1), 'Dtop':(-1, 0)}
+        
+                res = []
+                top = -1
+                bottom = M
+                left = -1
+                right = N
+        
+                nowX = 0
+                nowY = 0
+                nowDir = 'Dright'
+                count = 0
+        
+                while bottom - top > 1 and right - left > 1:
+                    # 当前还剩余元素      
+                    res.append(matrix[nowX][nowY])
+                    if nowDir == 'Dright':
+                        if nowY + 1 == right:
+                            nowDir = 'Dbottom'
+                            top = nowX
+                    elif nowDir == 'Dbottom':
+                        if nowX + 1 == bottom:
+                            nowDir = 'Dleft'
+                            right = nowY
+                    elif nowDir == 'Dleft':
+                        if nowY -1 == left:
+                            nowDir = 'Dtop'
+                            bottom = nowX
+                    else:
+                        # nowDir == 'Dtop'
+                        if nowX - 1 == top:
+                            nowDir = 'Dright'
+                            left = nowY
+        
+                    nowX = nowX + dire[nowDir][0]
+                    nowY = nowY + dire[nowDir][1]
+        
+        
+                return res
+        ```
+
+
+
+
+
+
+---
+
+## leetCode56 合并区间
+
+*   问题描述
+    *   [问题地址](https://leetcode.cn/problems/merge-intervals/)
+
+-   解题思路
+
+    -   排序后常规解
+
+-   实现代码
+
+    -   ```python
+        class Solution:
+            def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+                res = []
+                intervals = sorted(intervals, key = lambda x:x[0])
+                
+                nowStart = intervals[0][0]
+                nowEnd = intervals[0][1]
+                for i in range(1, len(intervals)):
+                    if intervals[i][0] <= nowEnd:
+                        nowEnd = max(nowEnd, intervals[i][1])
+                    else:
+                        res.append([nowStart, nowEnd])
+                        nowStart = intervals[i][0]
+                        nowEnd = intervals[i][1]
+                res.append([nowStart, nowEnd])
+                return res
+        ```
+
+
+
+
+
+
+
+
+---
+
+## leetCode57 插入区间
+
+*   问题描述
+
+    *   [问题地址](https://leetcode.cn/problems/insert-interval/)
+
+*   解题思路
+
+    *   找到第一个比插入值左边界大的值；不存在则插入到最后；存在则判断该区间的左边界是否比插入区间的右边界大；注意边界情况和合并步骤即可
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def insert(self, intervals: List[List[int]], newInterval: List[int]) -> List[List[int]]:
+                if len(intervals) == 0:
+                    return [newInterval]
+                res = []
+        
+                # 寻找出入开头的位置
+                flag = 0
+                for i in range(len(intervals)):
+                    if newInterval[0] <= intervals[i][1]:
+                        if newInterval[1] < intervals[i][0]:
+                            # 单独插入 不做合并
+                            flag = 1
+                            break
+                        else:
+                            nowLeft = min(intervals[i][0], newInterval[0])
+                            nowRight = max(intervals[i][1], newInterval[1])
+                            intervals[i] = [nowLeft, nowRight]
+                            flag = 2
+                            break
+                if flag == 0:
+                    intervals.append(newInterval)
+                elif flag == 1:
+                    intervals.insert(i, newInterval)
+                else:
+                    i += 1
+                    while i < len(intervals) and nowRight >= intervals[i][0]:
+                        nowRight = max(intervals[i][1], nowRight)
+                        intervals[i - 1][1] = nowRight
+                        intervals.pop(i)
+                return intervals
+        ```
 
 
 
@@ -1271,4 +1822,3 @@
 
 *   问题描述
     *   [问题地址]()
-
