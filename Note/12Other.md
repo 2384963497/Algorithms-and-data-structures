@@ -1658,6 +1658,76 @@
 
 ---
 
+## leetCode59 螺旋矩阵 II
+
+*   问题描述
+
+    *   [问题地址](https://leetcode.cn/problems/spiral-matrix-ii/)
+
+*   解题思路
+
+    *   与54题基本一致
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def generateMatrix(self, n: int) -> List[List[int]]:
+                if n == 1:
+                    return [[1]]
+                res = [[None for j in range(n)] for i in range(n)]
+        
+                dirc = {'toTop':(-1, 0), 'toBottom':(1, 0), 'toLeft':(0, -1), 'toRight':(0, 1)}
+                nowDirc = 'toRight'
+                top = -1
+                left = -1
+                right = n
+                bottom = n
+                
+                nowX = 0
+                nowY = 0
+                nowNum = 1
+        
+                while left + 1 < right and top + 1 < bottom:
+                    res[nowX][nowY] = nowNum
+                    nowNum += 1
+                    
+                    if nowY + 1 == right and nowDirc == 'toRight':
+                        top = top + 1
+                        nowDirc = 'toBottom'
+                    elif nowX + 1 == bottom and nowDirc == 'toBottom':
+                        right = right - 1
+                        nowDirc = 'toLeft'
+                    elif nowY - 1 == left and nowDirc == 'toLeft':
+                        bottom = bottom - 1
+                        nowDirc = 'toTop'
+                    elif nowX - 1 == top and nowDirc == 'toTop':
+                        left = left + 1
+                        nowDirc = 'toRight'
+        
+                    nowX += dirc[nowDirc][0]
+                    nowY += dirc[nowDirc][1]
+        
+                return res
+        ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
 ## leetCode54 螺旋矩阵
 
 *   问题描述
@@ -1814,11 +1884,390 @@
 
 
 
+---
+
+## leetCode65 有效数字
+
+*   问题描述
+
+    *   [问题地址](https://leetcode.cn/problems/valid-number/)
+
+*   解题思路
+
+    *   高踩题
+    *   大体思路：通过e分割为前后两个部分；每个部分通过对符号和字符的控制进行判断
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def isNumber(self, s: str) -> bool:
+                digit = '0123456789'
+                if s[0] == '+' or s[0] == '-':
+                    s = s[1:]
+                
+                doct = 1
+                # 前半部分允许出现 . 的次数
+                validLen1 = 0
+                validLen2 = 0
+        
+                flag = 1
+                for i in range(len(s)):
+                    if flag == 1:
+                        if (s[i] == 'e' or s[i] == 'E') and validLen1 > 0:
+                            flag = 2
+                            continue
+                        if s[i] in digit:
+                            validLen1 += 1
+                            continue
+                        if s[i] == '.' and doct == 1:
+                            doct -= 1
+                            continue    
+                    elif flag == 2:
+                        if (s[i] == '+' or s[i] == '-') and (s[i - 1] == 'e' or s[i - 1] == 'E'):
+                            continue
+                        if s[i] in digit:
+                            validLen2 += 1
+                            continue
+                    return False
+        
+                if flag == 2:
+                    return True if validLen2 > 0 else False
+                else:
+                    return True if validLen1 > 0 else False
+        ```
+
+
+
+
+
+
 
 
 ---
 
-## leetCode
+## leetCode66 加一
 
 *   问题描述
-    *   [问题地址]()
+
+    *   [问题地址](https://leetcode.cn/problems/plus-one/description/)
+
+*   解题思路
+
+    *   思路同大位数相加，主要是模拟进位的过程
+
+*   实现代码
+
+    *   ```python
+        class Solution:
+            def plusOne(self, digits: List[int]) -> List[int]:
+                p = 1
+                ind = len(digits) - 1
+        
+                while ind >= 0 and p == 1:
+                    digits[ind] += p
+                    p = digits[ind] // 10
+                    digits[ind] %= 10
+                    ind -= 1
+        
+                if p == 1:
+                    return [1] + digits
+                return digits
+        ```
+
+-   -   ```
+         class Solution:
+             def isNumber(self, s: str) -> bool:
+                 digit = '0123456789'
+                 if s[0] == '+' or s[0] == '-':
+                     s = s[1:]
+                 
+                 doct = 1
+                 # 前半部分允许出现 . 的次数
+                 validLen1 = 0
+                 validLen2 = 0
+         
+                 flag = 1
+                 for i in range(len(s)):
+                     if flag == 1:
+                         if (s[i] == 'e' or s[i] == 'E') and validLen1 > 0:
+                             flag = 2
+                             continue
+                         if s[i] in digit:
+                             validLen1 += 1
+                             continue
+                         if s[i] == '.' and doct == 1:
+                             doct -= 1
+                             continue    
+                     elif flag == 2:
+                         if (s[i] == '+' or s[i] == '-') and (s[i - 1] == 'e' or s[i - 1] == 'E'):
+                             continue
+                         if s[i] in digit:
+                             validLen2 += 1
+                             continue
+                     return False
+         
+                 if flag == 2:
+                     return True if validLen2 > 0 else False
+                 else:
+                     return True if validLen1 > 0 else False
+        ```
+
+
+
+
+
+
+
+## leetCode67 二进制求和
+
+-   问题描述
+
+    -   [问题地址](https://leetcode.cn/problems/add-binary/description/)
+
+-   解题思路
+
+    -   和模拟十进制加法过程一样；弄清进位情况和最终的进位信息即可
+
+-   实现代码
+
+    -   ```python
+        class Solution:
+            def addBinary(self, a: str, b: str) -> str:
+                M = len(b) - 1
+                N = len(a) - 1
+        
+                if M < N:
+                    a, b = b, a
+                res = ''
+                M = len(b) - 1
+                N = len(a) - 1
+                
+                p = 0
+                while M >= 0 and (N >= 0 or p > 0):
+                    if N >= 0:
+                        temp = int(a[N]) + int(b[M]) + p
+                        N -= 1
+                    else:
+                        temp = int(b[M]) + p
+                    M -= 1
+                    
+                    if temp == 0:
+                        res = '0' + res
+                        p = 0
+                    elif temp == 1:
+                        res = '1' + res
+                        p = 0
+                    elif temp == 2:
+                        res = '0' + res
+                        p = 1
+                    else:
+                        # temp == 3:
+                        res = '1' + res
+                        p = 1
+        
+                if p == 1:
+                    return '1' + res
+                return b[:M + 1] + res
+        ```
+
+
+
+
+
+
+
+## leetCode68 文本左右对齐
+
+-   问题描述
+
+    -   [问题地址](https://leetcode.cn/problems/text-justification/)
+
+-   解题思路
+
+    -   先通过一个临时变量储存当前行需要输出的单词；难点就是在当前行输出的单词之间插入要求的空格数量
+    -   如果是最后一行那么就只需要在单词之间插入空格
+    -   普遍行就要计算单词之间平均(整除)需要的空格数`l:13`，再从左往右依次加上1，直到空格全部被分配完毕`l:16`
+
+-   实现代码
+
+    -   ```python
+        class Solution:
+            def fullJustify(self, words: List[str], maxWidth: int) -> List[str]:
+                res = []
+                curLineLen = 0
+                tempWords = []
+        
+                def func(tempWords, curLineLen):
+                    if len(tempWords) == 1:
+                        return tempWords[0] + (' ' * (maxWidth - curLineLen))
+        
+                    # 计算需要插入的空格
+                    needSpace = maxWidth - curLineLen
+                    stepSapce = [needSpace // (len(tempWords) - 1) for i in range(len(tempWords) - 1)]
+                    needSpace -= stepSapce[0] * (len(tempWords) - 1)
+                    for i in range(len(stepSapce)):
+                        if needSpace == 0:
+                            break
+                        stepSapce[i] += 1
+                        needSpace -= 1
+        
+        
+                    res = ''
+                    for i in range(len(tempWords)):
+                        res += tempWords[i]
+                        if i == len(tempWords) - 1:
+                            break
+                        res += ' ' * stepSapce[i]
+        
+        
+                    return res
+        
+                def lastLine(tempWords):
+                    res = ''
+                    for i in tempWords:
+                        res = res + i + ' '
+                    res = res.rstrip(' ')
+                    res += ' ' * (maxWidth - len(res))
+                    return res
+        
+                for i in words:
+                    if len(tempWords) + curLineLen + len(i) > maxWidth:
+                        res.append(func(tempWords, curLineLen))
+                        curLineLen = 0
+                        tempWords = []
+                    curLineLen += len(i)
+                    tempWords.append(i)
+        
+                res.append(lastLine(tempWords))
+                return res                               
+        ```
+
+
+
+
+
+
+
+
+
+## leetCode73 矩阵置零
+
+-   问题描述
+
+    -   [问题地址](https://leetcode.cn/problems/set-matrix-zeroes/)
+
+-   解题思路
+
+    -   首先此题不能一边遍历一边修改，这样就无法判断当前位置的0是需要扩散的0还是被扩散的0
+    -   可以通过定义多一行和一列标记本行是否需要被覆盖的信息；空间复杂度为O(N)
+    -   如果不申请额外空间那么就可以使用原数组的首行和首列，如果赋予其以上的意义那么首行和首列中如出现0就无法判断0是原本的还是被改写的；
+    -   所以单独用两个变量一开始记录首行和首列最终是否需要被覆盖；如此这般，在其余行列都正确覆盖完成后，再查看最初的两个首行和首列变量，查看是否需要将他们覆盖
+
+-   实现代码
+
+    -   ```python
+        class Solution:
+            def setZeroes(self, matrix: List[List[int]]) -> None:
+                """
+                Do not return anything, modify matrix in-place instead.
+                """
+                rowLen = len(matrix[0])
+                colLen = len(matrix)
+        
+                firstRow = False
+                firstCol = False
+                for i in range(colLen):
+                    if matrix[i][0] == 0:
+                        firstCol = True
+                        break
+                for j in range(rowLen):
+                    if matrix[0][j] == 0:
+                        firstRow = True
+                        break
+            
+                for i in range(1, colLen):
+                    for j in range(1, rowLen):
+                        if matrix[i][j] == 0:
+                            matrix[0][j] = 0
+                            matrix[i][0] = 0
+                
+                # 开始覆盖被标记的行列值
+                for i in range(1, colLen):
+                    if matrix[i][0] == 0:
+                        # 当前行需要覆盖
+                        for j in range(1, rowLen):
+                            matrix[i][j] = 0
+        
+                for j in range(1, rowLen):
+                    if matrix[0][j] == 0:
+                        for i in range(1, colLen):
+                            matrix[i][j] = 0
+                
+                # 单独处理首行首列
+                if firstCol == True:
+                    for i in range(colLen):
+                        matrix[i][0] = 0
+                if firstRow == True:
+                    for j in range(rowLen):
+                        matrix[0][j] = 0
+        ```
+
+
+
+
+
+
+
+
+
+
+## leetCode89 格雷编码
+
+-   问题描述
+
+    -   [问题地址](https://leetcode.cn/problems/gray-code/)
+
+-   解题思路
+
+    -   找规律
+    -   <img src="images/image-20230306155159032.png" alt="image-20230306155159032" style="zoom: 25%;" />
+    -   第n位格雷码，是有第n-1位格雷码水平向下对折后在上半部分的末尾添0，下半部分末尾添1
+
+-   实现代码
+
+    -   ```python
+        class Solution:
+            def grayCode(self, n: int) -> List[int]:
+                res = [0]
+                
+                for m in range(1, n + 1):
+                    tempRes = []
+                    tempLen = len(res)
+                    for i in range(tempLen):
+                        now = res[i] << 1
+                        tempRes.append(now)
+                    for i in range(tempLen - 1, -1, -1):
+                        now = (res[i] << 1) + 1
+                        tempRes.append(now)
+                    res = tempRes[:]
+        
+                return res
+        ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+## leetCode
+
+-   问题描述
+    -   [问题地址]()
